@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation';
 
 export default function Signup() {
     const [name, setName] = useState("");
+    const [surname, setSurname] = useState(""); // State for surname
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [plateNumber, setPlateNumber] = useState(""); // State for plate number
+    const [role, setRole] = useState("citizen"); // State for role selection (citizen or police)
     const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
     const router = useRouter();
 
@@ -16,8 +19,11 @@ export default function Signup() {
         try {
             const response = await axios.post("/api/signup", {
                 name,
+                surname,  // Send surname
                 email,
                 password,
+                plateNumber, // Send plate number (optional, only for citizens)
+                role, // Send role
             });
 
             if (response.status === 200) {
@@ -33,11 +39,10 @@ export default function Signup() {
             }
         }
     };
+
     const handleLoginedirect = () => {
-        router.push("/login"); 
+        router.push("/login");
     };
-
-
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -59,6 +64,20 @@ export default function Signup() {
                             value={name}
                             required
                             onChange={(e) => setName(e.target.value)}
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700" htmlFor="surname">
+                            Surname
+                        </label>
+                        <input
+                            type="text"
+                            id="surname"
+                            value={surname}
+                            required
+                            onChange={(e) => setSurname(e.target.value)}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
                         />
                     </div>
@@ -98,6 +117,37 @@ export default function Signup() {
                             {showPassword ? "Hide" : "Show"}
                         </button>
                     </div>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700" htmlFor="role">
+                            Role
+                        </label>
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                        >
+                            <option value="citizen">Citizen</option>
+                            <option value="police">Police</option>
+                        </select>
+                    </div>
+                
+                    {role === "citizen" && (
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700" htmlFor="plateNumber">
+                                Plate Number (Optional)
+                            </label>
+                            <input
+                                type="text"
+                                id="plateNumber"
+                                value={plateNumber}
+                                onChange={(e) => setPlateNumber(e.target.value)}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            />
+                        </div>
+                    )}
+
+                 
 
                     <button
                         type="submit" 
