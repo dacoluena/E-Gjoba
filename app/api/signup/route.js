@@ -5,12 +5,12 @@ import bcrypt from "bcryptjs"; // For password hashing
 export async function POST(request) {
   try {
     // Parse the JSON body of the request
-    const { name, email, password } = await request.json();
+    const { name, surname, email, password, plateNumber, role } = await request.json();
 
-    // Check if all fields are provided
-    if (!name || !email || !password) {
+    // Check if all fields are provided (including the new ones)
+    if (!name || !surname || !email || !password || !role) {
       return NextResponse.json(
-        { error: "Name, email, and password are required." },
+        { error: "Name, surname, email, password, and role are required." },
         { status: 400 }
       );
     }
@@ -34,16 +34,17 @@ export async function POST(request) {
     // Insert the new user into the collection
     const result = await usersCollection.insertOne({
       name,
+      surname, // Insert surname
       email,
       password: hashedPassword,
-      role: 'citizen',
-      createdAt: new Date(), // You can add more fields as needed (e.g., role, etc.)
+      plateNumber, // Insert plate number (can be optional)
+      role, // Insert role
+      createdAt: new Date(), // You can add more fields as needed
     });
 
     // Fetch the newly inserted user (excluding the password)
     const newUser = await usersCollection.findOne({ _id: result.insertedId });
     const { password: _, ...userWithoutPassword } = newUser; // Exclude the password
-console.log(newUser,"DSJAIDJIEJ");
 
     // Return the newly created user (without password)
     return NextResponse.json({ user: userWithoutPassword });

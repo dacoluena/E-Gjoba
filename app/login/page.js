@@ -12,11 +12,11 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false); 
     
     const handleSignupRedirect = () => {
-        router.push("/signup"); // Redirect to the signup page
+        router.push("/signup"); 
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent the default form submission
+        e.preventDefault(); 
         try {
             const response = await axios.post("/api/login", {
                 email,
