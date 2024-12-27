@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation';
 
 export default function Signup() {
     const [name, setName] = useState("");
-    const [surname, setSurname] = useState(""); // State for surname
+    const [surname, setSurname] = useState(""); 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [plateNumber, setPlateNumber] = useState(""); // State for plate number
-    const [role, setRole] = useState("citizen"); // State for role selection (citizen or police)
-    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+    const [plateNumber, setPlateNumber] = useState("");
+    const [role, setRole] = useState("citizen");
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (e) => {
@@ -19,11 +19,11 @@ export default function Signup() {
         try {
             const response = await axios.post("/api/signup", {
                 name,
-                surname,  // Send surname
+                surname,  
                 email,
                 password,
-                plateNumber, // Send plate number (optional, only for citizens)
-                role, // Send role
+                plateNumber, 
+                role, 
             });
 
             if (response.status === 200) {
@@ -101,7 +101,7 @@ export default function Signup() {
                             Password
                         </label>
                         <input
-                            type={showPassword ? "text" : "password"} // Toggle between text and password
+                            type={showPassword ? "text" : "password"} 
                             id="password"
                             required
                             value={password}

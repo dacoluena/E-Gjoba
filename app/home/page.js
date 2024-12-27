@@ -13,10 +13,9 @@ export default function Home() {
         offense: "",
         fineAmount: ""
     });
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [newRole, setNewRole] = useState("");
+    const [tickets, setTickets] = useState([]);
     const router = useRouter();
-    
+
     useEffect(() => {
         const userDataFromLocalStorage = JSON.parse(localStorage.getItem("user"));
         if (!userDataFromLocalStorage) {
@@ -35,40 +34,76 @@ export default function Home() {
                             Authorization: `Bearer ${user.token}`,
                         },
                     });
-
+    
                     if (user.role === "admin") {
                         setUserData(response.data);
                     } else if (user.role === "citizen" || user.role === "police") {
                         const userData = response.data.find(u => u.email === user.email);
                         setUserData(userData);
+    
+                        if (user.role === "citizen") {
+                            if (userData.plateNumber) {
+                                try {
+                                    const ticketsResponse = await axios.get(`/api/tickets?plate=${userData.plateNumber}`, {
+                                        headers: {
+                                            Authorization: `Bearer ${user.token}`,
+                                        },
+                                    });
+                                    setTickets(ticketsResponse.data);
+                                } catch (error) {
+                                    if (error.response && error.response.status === 404) {
+                                        setTickets([]);
+                                        console.warn("No tickets found for the plate number.");
+                                    } else {
+                                        console.error("Error fetching tickets:", error);
+                                    }
+                                }
+                            } else {
+                                console.warn("No plate number found for the user.");
+                                setTickets([]);
+                            }
+                        }
+
+                        
+                        if (user.role === "police") {
+                            try {
+                                const ticketsResponse = await axios.get(`/api/tickets?createdBy=${user._id}`, {
+                                    headers: {
+                                        Authorization: `Bearer ${user.token}`,
+                                    },
+                                });
+                                const policeTickets = ticketsResponse.data.filter(ticket =>  ticket.createdBy === user._id.toString());
+                                setTickets(policeTickets);
+                            } catch (error) {
+                                console.error("Error fetching tickets for police:", error);
+                            }
+                        }
                     }
                 } catch (error) {
-                    console.error("Error fetching users:", error);
+                    console.error("Error fetching users or tickets:", error);
                 }
             };
-
+    
             fetchUserData();
         }
     }, [user]);
 
     const handleTicketSubmit = async (e) => {
         e.preventDefault();
-    
-        // Collect ticket details from the state or form inputs
+
         const ticketData = {
-            vehicleNumber: ticketDetails.vehicleNumber, // Vehicle number
-            offense: ticketDetails.offense,             // Offense description
-            fineAmount: ticketDetails.fineAmount,       // Fine amount
-            createdBy: user._id,                        // Pass the logged-in user's ID (police officer)
+            vehicleNumber: ticketDetails.vehicleNumber,
+            offense: ticketDetails.offense,
+            fineAmount: ticketDetails.fineAmount,
+            createdBy: user._id,
         };
-    
+
         try {
-            // Send the data to the /api/tickets endpoint
             const response = await axios.post("/api/tickets", ticketData);
 
             if (response.status === 200) {
                 alert("Parking ticket created successfully!");
-                setShowTicketForm(false); // Hide the ticket form after submission
+                setShowTicketForm(false);
             }
         } catch (error) {
             console.error("Error creating ticket:", error);
@@ -120,6 +155,7 @@ export default function Home() {
                         ) : (
                             <p>Loading your data...</p>
                         )}
+
                         {user.role === "police" && (
                             <div className="mt-6">
                                 <button
@@ -130,6 +166,7 @@ export default function Home() {
                                 </button>
                             </div>
                         )}
+
                         {user.role === "police" && showTicketForm && (
                             <div className="mt-6 bg-white shadow-md p-6 rounded-lg">
                                 <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
@@ -179,6 +216,66 @@ export default function Home() {
                                         </button>
                                     </div>
                                 </form>
+                            </div>
+                        )}
+
+                        {user.role === "police" && (
+                            <div className="mt-6">
+                                <h3 className="text-xl font-semibold">Your Created Tickets:</h3>
+                                {tickets.length > 0 ? (
+                                    <table className="min-w-full bg-white border">
+                                        <thead>
+                                            <tr>
+                                                <th className="px-4 py-2 border">Vehicle Number</th>
+                                                <th className="px-4 py-2 border">Offense</th>
+                                                <th className="px-4 py-2 border">Fine Amount</th>
+                                                <th className="px-4 py-2 border">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {tickets.map(ticket => (
+                                                <tr key={ticket._id}>
+                                                    <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
+                                                    <td className="px-4 py-2 border">{ticket.offense}</td>
+                                                    <td className="px-4 py-2 border">{ticket.fineAmount}</td>
+                                                    <td className="px-4 py-2 border">{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p>No tickets created by you.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {user.role === "citizen" && (
+                            <div className="mt-6">
+                                <h3 className="text-xl font-semibold">Your Tickets:</h3>
+                                {tickets.length > 0 ? (
+                                    <table className="min-w-full bg-white border">
+                                        <thead>
+                                            <tr>
+                                                <th className="px-4 py-2 border">Vehicle Number</th>
+                                                <th className="px-4 py-2 border">Offense</th>
+                                                <th className="px-4 py-2 border">Fine Amount</th>
+                                                <th className="px-4 py-2 border">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {tickets.map(ticket => (
+                                                <tr key={ticket._id}>
+                                                    <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
+                                                    <td className="px-4 py-2 border">{ticket.offense}</td>
+                                                    <td className="px-4 py-2 border">{ticket.fineAmount}</td>
+                                                    <td className="px-4 py-2 border">{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p>No tickets found.</p>
+                                )}
                             </div>
                         )}
                     </div>

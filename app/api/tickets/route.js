@@ -1,12 +1,46 @@
-import client from "@/lib/mongodb"; // MongoDB client
+import client from "@/lib/mongodb"; 
 import { NextResponse } from "next/server";
+
+
+
+export async function GET(req) {
+  try {
+    const db = (await client).db();
+    const ticketsCollection = db.collection("tickets");
+
+    const { searchParams } = new URL(req.url);
+    const plate = searchParams.get("plate");
+    const createdBy = searchParams.get("createdBy");  // Get createdBy from query params
+
+    // If no plate or createdBy is provided, return an error
+    if (!plate && !createdBy) {
+      return NextResponse.json({ error: "Plate number or createdBy is required to fetch tickets." }, { status: 400 });
+    }
+
+    // Build query object to filter tickets by either vehicle number or createdBy
+    const query = {};
+    if (plate) query.vehicleNumber = plate;
+    if (createdBy) query.createdBy = createdBy;  // Use createdBy for filtering
+
+    const tickets = await ticketsCollection.find(query).toArray();
+
+    if (tickets.length === 0) {
+      return NextResponse.json({ message: "No tickets found." }, { status: 404 });
+    }
+
+    return NextResponse.json(tickets, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    return NextResponse.json({ error: "Failed to fetch tickets" }, { status: 500 });
+  }
+}
 
 export async function POST(request) {
   try {
-    // Parse the JSON body of the request
+
     const { vehicleNumber, offense, fineAmount, createdBy } = await request.json();
 
-    // Check if all required fields are provided
+   
     if (!vehicleNumber || !offense || !fineAmount || !createdBy) {
       return NextResponse.json(
         { error: "Vehicle number, offense, fine amount, and createdBy are required." },
@@ -14,23 +48,22 @@ export async function POST(request) {
       );
     }
 
-    // Connect to the database
     const db = (await client).db();
     const ticketsCollection = db.collection("tickets");
 
-    // Insert the new ticket into the collection
+  
     const result = await ticketsCollection.insertOne({
       vehicleNumber,
       offense,
       fineAmount,
-      createdBy, // createdBy would be the police officer creating the ticket
-      createdAt: new Date(), // Timestamp for ticket creation
+      createdBy, 
+      createdAt: new Date(),
     });
 
-    // Fetch the newly inserted ticket
+  
     const newTicket = await ticketsCollection.findOne({ _id: result.insertedId });
 
-    // Return the newly created ticket
+  
     return NextResponse.json({ ticket: newTicket });
 
   } catch (error) {
@@ -41,3 +74,4 @@ export async function POST(request) {
     );
   }
 }
+

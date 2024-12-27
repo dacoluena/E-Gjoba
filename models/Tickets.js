@@ -4,7 +4,7 @@ const ticketSchema = new mongoose.Schema({
     vehicleNumber: { type: String, required: true },
     offense: { type: String, required: true },
     fineAmount: { type: Number, required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User (police)
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
     createdAt: { type: Date, default: Date.now },
 });
 

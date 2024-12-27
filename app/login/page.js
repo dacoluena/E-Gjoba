@@ -64,7 +64,7 @@ export default function Login() {
                             Password
                         </label>
                         <input
-                            type={showPassword ? "text" : "password"} // Toggle between text and password
+                            type={showPassword ? "text" : "password"} 
                             id="password"
                             required
                             value={password}
