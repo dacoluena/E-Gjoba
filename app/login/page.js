@@ -4,7 +4,6 @@ import axios from "axios";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
 
-
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -26,11 +25,10 @@ export default function Login() {
             if (response.status === 200) {
                 router.push("/home");
                 console.log(response);
-                
             }
         } catch (error) {
             console.error("Error during signup:", error);
-            alert("Signup failed. Please try again.");
+            alert("Login failed. Please try again.");
         }
     };
 
@@ -39,9 +37,9 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#0f4050" }}>
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-2xl font-bold mb-4" >Login</h1>
+                <h1 className="text-2xl font-bold mb-4 text-gray-800">Login</h1>
 
                 <form onSubmit={handleSubmit}>
 
@@ -55,7 +53,7 @@ export default function Login() {
                             value={email}
                             required
                             onChange={(e) => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                     </div>
 
@@ -70,7 +68,7 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="********"
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                         <button
                             type="button"
@@ -83,7 +81,7 @@ export default function Login() {
 
                     <button
                         type="submit" 
-                        className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+                        className="w-full bg-red-500 text-white font-medium py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
                     >
                        Login
                     </button>
@@ -93,7 +91,7 @@ export default function Login() {
                         Are you a new user?{" "}
                         <span
                             onClick={handleSignupRedirect}
-                            className="text-blue-500 cursor-pointer hover:underline"
+                            className="text-red-500 cursor-pointer hover:underline"
                         >
                             Sign up here
                         </span>
