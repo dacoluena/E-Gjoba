@@ -49,9 +49,9 @@ export default function Signup() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#0f4050" }}>
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
+                <h1 className="text-2xl font-bold mb-4 text-gray-800">Sign Up</h1>
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
@@ -64,7 +64,7 @@ export default function Signup() {
                             value={name}
                             required
                             onChange={(e) => setName(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                     </div>
 
@@ -78,7 +78,7 @@ export default function Signup() {
                             value={surname}
                             required
                             onChange={(e) => setSurname(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                     </div>
 
@@ -92,7 +92,7 @@ export default function Signup() {
                             value={email}
                             required
                             onChange={(e) => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                     </div>
 
@@ -107,7 +107,7 @@ export default function Signup() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="********"
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         />
                         <button
                             type="button"
@@ -125,7 +125,7 @@ export default function Signup() {
                             id="role"
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                         >
                             <option value="citizen">Citizen</option>
                             <option value="police">Police</option>
@@ -142,16 +142,14 @@ export default function Signup() {
                                 id="plateNumber"
                                 value={plateNumber}
                                 onChange={(e) => setPlateNumber(e.target.value)}
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-red-400"
                             />
                         </div>
                     )}
 
-                 
-
                     <button
                         type="submit" 
-                        className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+                        className="w-full bg-red-500 text-white font-medium py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
                     >
                         Sign Up
                     </button>
@@ -161,7 +159,7 @@ export default function Signup() {
                         Already a user?{" "}
                         <span
                             onClick={handleLoginedirect}
-                            className="text-blue-500 cursor-pointer hover:underline"
+                            className="text-red-500 cursor-pointer hover:underline"
                         >
                             Login
                         </span>
@@ -170,4 +168,4 @@ export default function Signup() {
             </div>
         </div>
     );
-}
+}  

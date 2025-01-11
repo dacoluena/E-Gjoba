@@ -34,13 +34,12 @@ export default function Home() {
                             Authorization: `Bearer ${user.token}`,
                         },
                     });
-    
                     if (user.role === "admin") {
                         setUserData(response.data);
                     } else if (user.role === "citizen" || user.role === "police") {
                         const userData = response.data.find(u => u.email === user.email);
                         setUserData(userData);
-    
+
                         if (user.role === "citizen") {
                             if (userData.plateNumber) {
                                 try {
@@ -64,7 +63,6 @@ export default function Home() {
                             }
                         }
 
-                        
                         if (user.role === "police") {
                             try {
                                 const ticketsResponse = await axios.get(`/api/tickets?createdBy=${user._id}`, {
@@ -72,7 +70,7 @@ export default function Home() {
                                         Authorization: `Bearer ${user.token}`,
                                     },
                                 });
-                                const policeTickets = ticketsResponse.data.filter(ticket =>  ticket.createdBy === user._id.toString());
+                                const policeTickets = ticketsResponse.data.filter(ticket => ticket.createdBy === user._id.toString());
                                 setTickets(policeTickets);
                             } catch (error) {
                                 console.error("Error fetching tickets for police:", error);
@@ -83,7 +81,7 @@ export default function Home() {
                     console.error("Error fetching users or tickets:", error);
                 }
             };
-    
+
             fetchUserData();
         }
     }, [user]);
@@ -102,8 +100,8 @@ export default function Home() {
             const response = await axios.post("/api/tickets", ticketData);
 
             if (response.status === 200) {
-                alert("Parking ticket created successfully!");
                 setShowTicketForm(false);
+                window.location.reload(); 
             }
         } catch (error) {
             console.error("Error creating ticket:", error);
@@ -124,13 +122,13 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <div className="h-screen bg-gray-100 flex flex-col">
+            <div className="bg-[#032b38] text-white p-4 flex justify-between items-center"> {/* Darker Navbar */}
                 <div className="text-2xl font-bold">E-Gjoba</div>
                 <div className="flex items-center">
                     <span className="mr-4">Hello, {user ? user.name : "User"}!</span>
                     <button
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+                        className="bg-[#ed174e] hover:bg-[#ed174e] text-white py-2 px-4 rounded-md"
                         onClick={() => {
                             localStorage.removeItem("user");
                             router.push("/login");
@@ -138,19 +136,19 @@ export default function Home() {
                     >
                         Log out
                     </button>
+
                 </div>
             </div>
 
-            <div className="p-6">
-                <h2 className="text-3xl font-semibold mb-4">Dashboard</h2>
-                <div className="bg-white shadow-md p-6 rounded-lg">
+            <div className="flex-1 p-6 bg-[#0A4356] overflow-auto">
+
+                <div className="bg-[#053d4f] text-white shadow-md p-6 rounded-lg"> {/* Dark teal for "Your Data" */}
                     <div>
                         <h3 className="mt-6 text-xl font-semibold">Your Data:</h3>
                         {userData ? (
                             <div>
-                                <p>Name: {userData.name}</p>
+                                <p>Name : {userData.name}</p>
                                 <p>Email: {userData.email}</p>
-                                <p>Role: {userData.role}</p>
                             </div>
                         ) : (
                             <p>Loading your data...</p>
@@ -168,11 +166,11 @@ export default function Home() {
                         )}
 
                         {user.role === "police" && showTicketForm && (
-                            <div className="mt-6 bg-white shadow-md p-6 rounded-lg">
+                            <div className="mt-6 bg-[#053d4f] text-white shadow-md p-6 rounded-lg"> {/* Dark teal for form */}
                                 <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
                                 <form onSubmit={handleTicketSubmit} className="space-y-4">
                                     <div>
-                                        <label htmlFor="vehicleNumber" className="block text-sm font-medium text-gray-700">Vehicle Number</label>
+                                        <label htmlFor="vehicleNumber" className="block text-sm font-medium">Vehicle Number</label>
                                         <input
                                             type="text"
                                             id="vehicleNumber"
@@ -180,11 +178,11 @@ export default function Home() {
                                             value={ticketDetails.vehicleNumber}
                                             onChange={handleInputChange}
                                             required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="offense" className="block text-sm font-medium text-gray-700">Offense</label>
+                                        <label htmlFor="offense" className="block text-sm font-medium">Offense</label>
                                         <input
                                             type="text"
                                             id="offense"
@@ -192,11 +190,11 @@ export default function Home() {
                                             value={ticketDetails.offense}
                                             onChange={handleInputChange}
                                             required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="fineAmount" className="block text-sm font-medium text-gray-700">Fine Amount</label>
+                                        <label htmlFor="fineAmount" className="block text-sm font-medium">Fine Amount</label>
                                         <input
                                             type="number"
                                             id="fineAmount"
@@ -204,7 +202,7 @@ export default function Home() {
                                             value={ticketDetails.fineAmount}
                                             onChange={handleInputChange}
                                             required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
                                         />
                                     </div>
                                     <div className="mt-4">
@@ -223,8 +221,8 @@ export default function Home() {
                             <div className="mt-6">
                                 <h3 className="text-xl font-semibold">Your Created Tickets:</h3>
                                 {tickets.length > 0 ? (
-                                    <table className="min-w-full bg-white border">
-                                        <thead>
+                                    <table className="min-w-full bg-[#adbcc3] border">
+                                        <thead className="bg-[#e9154c] text-white">
                                             <tr>
                                                 <th className="px-4 py-2 border">Vehicle Number</th>
                                                 <th className="px-4 py-2 border">Offense</th>
@@ -234,7 +232,10 @@ export default function Home() {
                                         </thead>
                                         <tbody>
                                             {tickets.map(ticket => (
-                                                <tr key={ticket._id}>
+                                                <tr
+                                                    key={ticket._id}
+                                                    className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
+                                                >
                                                     <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
                                                     <td className="px-4 py-2 border">{ticket.offense}</td>
                                                     <td className="px-4 py-2 border">{ticket.fineAmount}</td>
@@ -253,8 +254,8 @@ export default function Home() {
                             <div className="mt-6">
                                 <h3 className="text-xl font-semibold">Your Tickets:</h3>
                                 {tickets.length > 0 ? (
-                                    <table className="min-w-full bg-white border">
-                                        <thead>
+                                    <table className="min-w-full bg-[#adbcc3] border">
+                                        <thead className="bg-[#e9154c] text-white">
                                             <tr>
                                                 <th className="px-4 py-2 border">Vehicle Number</th>
                                                 <th className="px-4 py-2 border">Offense</th>
@@ -264,7 +265,10 @@ export default function Home() {
                                         </thead>
                                         <tbody>
                                             {tickets.map(ticket => (
-                                                <tr key={ticket._id}>
+                                                <tr
+                                                    key={ticket._id}
+                                                    className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
+                                                >
                                                     <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
                                                     <td className="px-4 py-2 border">{ticket.offense}</td>
                                                     <td className="px-4 py-2 border">{ticket.fineAmount}</td>
