@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
+import PhotoCard from "../../models/Photo";
 
 export default function Home() {
     const [user, setUser] = useState(null);
@@ -86,6 +87,41 @@ export default function Home() {
         }
     }, [user]);
 
+    const [files, setFiles] = useState([]);
+
+    const handleInputFile = (e) => {
+        const files = e.target.files;
+        console.log(files);
+    
+         const newFiles = [...files].filter(file => {
+            if (file.size < 1024 * 1024 && file.type.startsWith('image/')) {
+                return file;
+            }
+        });
+    
+        
+        setFiles(newFiles);
+    };
+    
+    const handleCancel = () => {
+        setShowTicketForm(false);
+        setFiles([]);
+
+        const fileInput = document.getElementById('photo');
+        if (fileInput) fileInput.value = ''; // Reset the file input value
+    };
+    // async function HandleUpload() {
+    //     console.log(files);
+    //     const formData = new FormData();
+
+    //     files.forEach(file => {
+    //         formData.append("files", file)
+    //     })
+    //     const res = await uploadPhoto(formData);
+        
+        
+    // }
+
     const handleTicketSubmit = async (e) => {
         e.preventDefault();
 
@@ -101,7 +137,7 @@ export default function Home() {
 
             if (response.status === 200) {
                 setShowTicketForm(false);
-                window.location.reload(); 
+                window.location.reload();
             }
         } catch (error) {
             console.error("Error creating ticket:", error);
@@ -123,7 +159,7 @@ export default function Home() {
 
     return (
         <div className="h-screen bg-gray-100 flex flex-col">
-            <div className="bg-[#032b38] text-white p-4 flex justify-between items-center"> {/* Darker Navbar */}
+            <div className="bg-[#032b38] text-white p-4 flex justify-between items-center">
                 <div className="text-2xl font-bold">E-Gjoba</div>
                 <div className="flex items-center">
                     <span className="mr-4">Hello, {user ? user.name : "User"}!</span>
@@ -136,13 +172,11 @@ export default function Home() {
                     >
                         Log out
                     </button>
-
                 </div>
             </div>
 
             <div className="flex-1 p-6 bg-[#0A4356] overflow-auto">
-
-                <div className="bg-[#053d4f] text-white shadow-md p-6 rounded-lg"> {/* Dark teal for "Your Data" */}
+                <div className="bg-[#053d4f] text-white shadow-md p-6 rounded-lg">
                     <div>
                         <h3 className="mt-6 text-xl font-semibold">Your Data:</h3>
                         {userData ? (
@@ -165,55 +199,87 @@ export default function Home() {
                             </div>
                         )}
 
-                        {user.role === "police" && showTicketForm && (
-                            <div className="mt-6 bg-[#053d4f] text-white shadow-md p-6 rounded-lg"> {/* Dark teal for form */}
-                                <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
-                                <form onSubmit={handleTicketSubmit} className="space-y-4">
-                                    <div>
-                                        <label htmlFor="vehicleNumber" className="block text-sm font-medium">Vehicle Number</label>
-                                        <input
-                                            type="text"
-                                            id="vehicleNumber"
-                                            name="vehicleNumber"
-                                            value={ticketDetails.vehicleNumber}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="offense" className="block text-sm font-medium">Offense</label>
-                                        <input
-                                            type="text"
-                                            id="offense"
-                                            name="offense"
-                                            value={ticketDetails.offense}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="fineAmount" className="block text-sm font-medium">Fine Amount</label>
-                                        <input
-                                            type="number"
-                                            id="fineAmount"
-                                            name="fineAmount"
-                                            value={ticketDetails.fineAmount}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
-                                        />
-                                    </div>
-                                    <div className="mt-4">
-                                        <button
-                                            type="submit"
-                                            className="bg-green-500 text-white py-2 px-4 rounded-md"
-                                        >
-                                            Submit Ticket
-                                        </button>
-                                    </div>
-                                </form>
+                        {/* Popup Modal for Ticket Form */}
+                        {showTicketForm && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                                <div className="bg-[#053d4f] text-white p-8 rounded-lg w-96">
+                                    <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
+                                    <form onSubmit={handleTicketSubmit} className="space-y-4">
+                                        <div>
+                                            <label htmlFor="vehicleNumber" className="block text-sm font-medium">Vehicle Number</label>
+                                            <input
+                                                type="text"
+                                                id="vehicleNumber"
+                                                name="vehicleNumber"
+                                                value={ticketDetails.vehicleNumber}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="offense" className="block text-sm font-medium">Offense</label>
+                                            <input
+                                                type="text"
+                                                id="offense"
+                                                name="offense"
+                                                value={ticketDetails.offense}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="fineAmount" className="block text-sm font-medium">Fine Amount</label>
+                                            <input
+                                                type="number"
+                                                id="fineAmount"
+                                                name="fineAmount"
+                                                value={ticketDetails.fineAmount}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="photo" className="block text-sm font-medium">Upload Photo (Optional)</label>
+                                            <input
+                                                type="file"
+                                                id="photo"
+                                                accept="image/*"
+
+                                                onChange={handleInputFile}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            {files && files.length > 0 ? (
+                                                Array.from(files).map((file, index) => (
+                                                    <PhotoCard key={index} url={URL.createObjectURL(file)} />
+                                                ))
+                                            ) : (
+                                                <div>No files to display</div> // Optional: to show when there are no files
+                                            )}
+                                        </div>
+
+                                        <div className="mt-4 flex justify-between">
+                                            <button
+                                                type="submit"
+                                                className="bg-green-500 text-white py-2 px-4 rounded-md"
+                                            >
+                                                Submit Ticket
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleCancel} // Close the form and reset the files
+                                                className="bg-red-500 text-white py-2 px-4 rounded-md"
+                                            >
+                                                Cancel
+                                            </button>
+
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         )}
 
@@ -278,7 +344,7 @@ export default function Home() {
                                         </tbody>
                                     </table>
                                 ) : (
-                                    <p>No tickets found.</p>
+                                    <p>No tickets found for your vehicle.</p>
                                 )}
                             </div>
                         )}
