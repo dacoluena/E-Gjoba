@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import PhotoCard from "../../models/Photo";
-
+import FunctionField from 'react'
 export default function Home() {
     const [user, setUser] = useState(null);
     const [userData, setUserData] = useState(null);
@@ -92,17 +92,17 @@ export default function Home() {
     const handleInputFile = (e) => {
         const files = e.target.files;
         console.log(files);
-    
-         const newFiles = [...files].filter(file => {
+
+        const newFiles = [...files].filter(file => {
             if (file.size < 1024 * 1024 && file.type.startsWith('image/')) {
                 return file;
             }
         });
-    
-        
+
+
         setFiles(newFiles);
     };
-    
+
     const handleCancel = () => {
         setShowTicketForm(false);
         setFiles([]);
@@ -110,17 +110,22 @@ export default function Home() {
         const fileInput = document.getElementById('photo');
         if (fileInput) fileInput.value = ''; // Reset the file input value
     };
-    // async function HandleUpload() {
-    //     console.log(files);
-    //     const formData = new FormData();
+    const renderIcon = (record) => {
+        // Assuming `imageUrls` is an array of blob URLs
+        const iconUrls = record[0]; // This will be an array like ["blob:http://localhost:3000/..."]
+        console.log(iconUrls);
 
-    //     files.forEach(file => {
-    //         formData.append("files", file)
-    //     })
-    //     const res = await uploadPhoto(formData);
-        
-        
-    // }
+        if (Array.isArray(iconUrls) && iconUrls.length > 0) {
+            const iconPath = iconUrls[0]; // Get the first image URL from the array
+
+            if (typeof iconPath === 'string') {
+                return <img src={iconPath} alt="Ticket Image" style={{ maxWidth: 200, maxHeight: 150 }} />;
+            }
+        }
+
+        return null;
+    };
+
 
     const handleTicketSubmit = async (e) => {
         e.preventDefault();
@@ -130,6 +135,7 @@ export default function Home() {
             offense: ticketDetails.offense,
             fineAmount: ticketDetails.fineAmount,
             createdBy: user._id,
+            imageUrls: files.map(file => URL.createObjectURL(file)),
         };
 
         try {
@@ -144,6 +150,7 @@ export default function Home() {
             alert("Failed to create the ticket.");
         }
     };
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -284,12 +291,15 @@ export default function Home() {
                         )}
 
                         {user.role === "police" && (
+
                             <div className="mt-6">
                                 <h3 className="text-xl font-semibold">Your Created Tickets:</h3>
                                 {tickets.length > 0 ? (
+
                                     <table className="min-w-full bg-[#adbcc3] border">
                                         <thead className="bg-[#e9154c] text-white">
                                             <tr>
+                                                <th className="px-4 py-2 border">Image</th>
                                                 <th className="px-4 py-2 border">Vehicle Number</th>
                                                 <th className="px-4 py-2 border">Offense</th>
                                                 <th className="px-4 py-2 border">Fine Amount</th>
@@ -298,10 +308,29 @@ export default function Home() {
                                         </thead>
                                         <tbody>
                                             {tickets.map(ticket => (
+
                                                 <tr
                                                     key={ticket._id}
                                                     className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
+
                                                 >
+
+                                                    <td className="px-4 py-2 border">
+                                                        {ticket.imageUrls && ticket.imageUrls.length > 0 ? (
+                                                            <>
+                                                                {console.log("Ticket Image URL: ", ticket.imageUrls[0])} {/* Log the URL */}
+                                                                {/* Directly render the image */}
+                                                                <img
+                                                                    src={ticket.imageUrls[0]} // Accessing the first image URL in the array
+                                                                    alt="Ticket Image"
+                                                                    style={{ width: "100px", height: "auto" }}
+                                                                />
+                                                            </>
+                                                        ) : (
+                                                            <span>No image</span>
+                                                        )}
+                                                    </td>
+
                                                     <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
                                                     <td className="px-4 py-2 border">{ticket.offense}</td>
                                                     <td className="px-4 py-2 border">{ticket.fineAmount}</td>
@@ -323,6 +352,7 @@ export default function Home() {
                                     <table className="min-w-full bg-[#adbcc3] border">
                                         <thead className="bg-[#e9154c] text-white">
                                             <tr>
+                                                <th className="px-4 py-2 border">Image</th>
                                                 <th className="px-4 py-2 border">Vehicle Number</th>
                                                 <th className="px-4 py-2 border">Offense</th>
                                                 <th className="px-4 py-2 border">Fine Amount</th>
@@ -335,6 +365,18 @@ export default function Home() {
                                                     key={ticket._id}
                                                     className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
                                                 >
+                                                    {/* Image column */}
+                                                    <td className="px-4 py-2 border">
+                                                        {ticket.imageUrls && ticket.imageUrls.length > 0 ? (
+                                                            <img
+                                                                src={ticket.imageUrls} // Assuming first image in array is the main image
+                                                                alt="Ticket Image"
+                                                                style={{ width: "100px", height: "auto" }}
+                                                            />
+                                                        ) : (
+                                                            <span>No image</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
                                                     <td className="px-4 py-2 border">{ticket.offense}</td>
                                                     <td className="px-4 py-2 border">{ticket.fineAmount}</td>
