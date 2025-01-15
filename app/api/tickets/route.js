@@ -2,7 +2,6 @@ import client from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 
 
-
 export async function GET(req) {
   try {
     const db = (await client).db();
@@ -35,12 +34,13 @@ export async function GET(req) {
   }
 }
 
+
 export async function POST(request) {
   try {
+    // Extract the necessary fields from the request body
+    const { vehicleNumber, offense, fineAmount, createdBy, imageUrls } = await request.json();
 
-    const { vehicleNumber, offense, fineAmount, createdBy } = await request.json();
-
-   
+    // Validate required fields
     if (!vehicleNumber || !offense || !fineAmount || !createdBy) {
       return NextResponse.json(
         { error: "Vehicle number, offense, fine amount, and createdBy are required." },
@@ -48,23 +48,24 @@ export async function POST(request) {
       );
     }
 
+    // Connect to the database
     const db = (await client).db();
     const ticketsCollection = db.collection("tickets");
 
-  
+    // Insert the ticket data along with the image URLs
     const result = await ticketsCollection.insertOne({
       vehicleNumber,
       offense,
       fineAmount,
-      createdBy, 
+      createdBy,
+      imageUrls, // Store image URLs in the database
       createdAt: new Date(),
     });
 
-  
+    // Fetch the newly inserted ticket from the database
     const newTicket = await ticketsCollection.findOne({ _id: result.insertedId });
 
-  
-    return NextResponse.json({ ticket: newTicket });
+    return NextResponse.json({ ticket: newTicket }, { status: 200 });
 
   } catch (error) {
     console.error("Error during ticket creation:", error);
@@ -74,4 +75,3 @@ export async function POST(request) {
     );
   }
 }
-
