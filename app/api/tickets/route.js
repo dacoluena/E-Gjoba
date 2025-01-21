@@ -1,7 +1,6 @@
 import client from "@/lib/mongodb"; 
 import { NextResponse } from "next/server";
 
-
 export async function GET(req) {
   try {
     const db = (await client).db();

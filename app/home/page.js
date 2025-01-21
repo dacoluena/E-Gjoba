@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 import PhotoCard from "../../models/Photo";
 import FunctionField from 'react'
+
 export default function Home() {
     const [user, setUser] = useState(null);
     const [userData, setUserData] = useState(null);
@@ -110,21 +111,6 @@ export default function Home() {
         const fileInput = document.getElementById('photo');
         if (fileInput) fileInput.value = ''; // Reset the file input value
     };
-    const renderIcon = (record) => {
-        // Assuming `imageUrls` is an array of blob URLs
-        const iconUrls = record[0]; // This will be an array like ["blob:http://localhost:3000/..."]
-        console.log(iconUrls);
-
-        if (Array.isArray(iconUrls) && iconUrls.length > 0) {
-            const iconPath = iconUrls[0]; // Get the first image URL from the array
-
-            if (typeof iconPath === 'string') {
-                return <img src={iconPath} alt="Ticket Image" style={{ maxWidth: 200, maxHeight: 150 }} />;
-            }
-        }
-
-        return null;
-    };
 
 
     const handleTicketSubmit = async (e) => {
@@ -151,6 +137,14 @@ export default function Home() {
         }
     };
 
+
+async function handleUpload(){
+    const formData = new FormData();
+    files.forEach(file => {
+        formData.append('files',file)
+    })
+    const res = await uploadphoto(formData);
+}
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -211,7 +205,7 @@ export default function Home() {
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                                 <div className="bg-[#053d4f] text-white p-8 rounded-lg w-96">
                                     <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
-                                    <form onSubmit={handleTicketSubmit} className="space-y-4">
+                                    <form onSubmit={handleUpload} className="space-y-4">
                                         <div>
                                             <label htmlFor="vehicleNumber" className="block text-sm font-medium">Vehicle Number</label>
                                             <input
@@ -319,11 +313,10 @@ export default function Home() {
                                                         {ticket.imageUrls && ticket.imageUrls.length > 0 ? (
                                                             <>
                                                                 {console.log("Ticket Image URL: ", ticket.imageUrls[0])} {/* Log the URL */}
-                                                                {/* Directly render the image */}
                                                                 <img
                                                                     src={ticket.imageUrls[0]} // Accessing the first image URL in the array
                                                                     alt="Ticket Image"
-                                                                    style={{ width: "100px", height: "auto" }}
+                                                                   // style={{ width: "100px", height: "auto" }}
                                                                 />
                                                             </>
                                                         ) : (
