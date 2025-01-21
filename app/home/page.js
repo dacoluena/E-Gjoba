@@ -112,23 +112,45 @@ export default function Home() {
         if (fileInput) fileInput.value = ''; // Reset the file input value
     };
 
+    async function uploadPhoto(file) {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await axios.post('/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            
+            return response.data.filename;
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            throw error;
+        }
+    }
 
     const handleTicketSubmit = async (e) => {
         e.preventDefault();
 
-        const ticketData = {
-            vehicleNumber: ticketDetails.vehicleNumber,
-            offense: ticketDetails.offense,
-            fineAmount: ticketDetails.fineAmount,
-            createdBy: user._id,
-            imageUrls: files.map(file => URL.createObjectURL(file)),
-        };
-
         try {
+            // Upload images first
+            const imagePromises = files.map(file => uploadPhoto(file));
+            const uploadedImageNames = await Promise.all(imagePromises);
+
+            const ticketData = {
+                vehicleNumber: ticketDetails.vehicleNumber,
+                offense: ticketDetails.offense,
+                fineAmount: ticketDetails.fineAmount,
+                createdBy: user._id,
+                imageUrls: uploadedImageNames,
+            };
+
             const response = await axios.post("/api/tickets", ticketData);
 
             if (response.status === 200) {
                 setShowTicketForm(false);
+                setFiles([]);
                 window.location.reload();
             }
         } catch (error) {
@@ -136,15 +158,6 @@ export default function Home() {
             alert("Failed to create the ticket.");
         }
     };
-
-
-async function handleUpload(){
-    const formData = new FormData();
-    files.forEach(file => {
-        formData.append('files',file)
-    })
-    const res = await uploadphoto(formData);
-}
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -205,7 +218,7 @@ async function handleUpload(){
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                                 <div className="bg-[#053d4f] text-white p-8 rounded-lg w-96">
                                     <h4 className="text-xl font-semibold">Create Parking Ticket</h4>
-                                    <form onSubmit={handleUpload} className="space-y-4">
+                                    <form onSubmit={handleTicketSubmit} className="space-y-4">
                                         <div>
                                             <label htmlFor="vehicleNumber" className="block text-sm font-medium">Vehicle Number</label>
                                             <input
@@ -248,7 +261,6 @@ async function handleUpload(){
                                                 type="file"
                                                 id="photo"
                                                 accept="image/*"
-
                                                 onChange={handleInputFile}
                                                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 text-black"
                                             />
@@ -277,7 +289,6 @@ async function handleUpload(){
                                             >
                                                 Cancel
                                             </button>
-
                                         </div>
                                     </form>
                                 </div>
@@ -285,11 +296,9 @@ async function handleUpload(){
                         )}
 
                         {user.role === "police" && (
-
                             <div className="mt-6">
                                 <h3 className="text-xl font-semibold">Your Created Tickets:</h3>
                                 {tickets.length > 0 ? (
-
                                     <table className="min-w-full bg-[#adbcc3] border">
                                         <thead className="bg-[#e9154c] text-white">
                                             <tr>
@@ -302,28 +311,21 @@ async function handleUpload(){
                                         </thead>
                                         <tbody>
                                             {tickets.map(ticket => (
-
                                                 <tr
                                                     key={ticket._id}
                                                     className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
-
                                                 >
-
                                                     <td className="px-4 py-2 border">
                                                         {ticket.imageUrls && ticket.imageUrls.length > 0 ? (
-                                                            <>
-                                                                {console.log("Ticket Image URL: ", ticket.imageUrls[0])} {/* Log the URL */}
-                                                                <img
-                                                                    src={ticket.imageUrls[0]} // Accessing the first image URL in the array
-                                                                    alt="Ticket Image"
-                                                                   // style={{ width: "100px", height: "auto" }}
-                                                                />
-                                                            </>
+                                                            <img
+                                                                src={`/gjobaImages/${ticket.imageUrls[0]}`}
+                                                                alt="Ticket Image"
+                                                                style={{ width: "100px", height: "auto" }}
+                                                            />
                                                         ) : (
                                                             <span>No image</span>
                                                         )}
                                                     </td>
-
                                                     <td className="px-4 py-2 border">{ticket.vehicleNumber}</td>
                                                     <td className="px-4 py-2 border">{ticket.offense}</td>
                                                     <td className="px-4 py-2 border">{ticket.fineAmount}</td>
@@ -358,11 +360,10 @@ async function handleUpload(){
                                                     key={ticket._id}
                                                     className={ticket.fineAmount > 500 ? 'bg-[#444444]' : ''}
                                                 >
-                                                    {/* Image column */}
                                                     <td className="px-4 py-2 border">
                                                         {ticket.imageUrls && ticket.imageUrls.length > 0 ? (
                                                             <img
-                                                                src={ticket.imageUrls} // Assuming first image in array is the main image
+                                                                src={`/gjobaImages/${ticket.imageUrls[0]}`}
                                                                 alt="Ticket Image"
                                                                 style={{ width: "100px", height: "auto" }}
                                                             />
